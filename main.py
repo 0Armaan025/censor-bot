@@ -1,11 +1,14 @@
 import discord
 from discord.ext import commands
+from dotenv import load_dotenv
 import requests
+import os
 
 intents = discord.Intents.default()
 intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
-token = "MTEyNjc5MDAwNDA1Njc5MzExOQ.GoxHEL.F1A_7sxVDeQncvBpVO4r3l7FqpzPtoch13Ob88"
+load_dotenv()
+token = os.getenv('token')
 
 def contains_prohibited_word(message_content):
     with open('swears.txt', 'r') as file:
@@ -13,6 +16,7 @@ def contains_prohibited_word(message_content):
 
     for word in prohibited_words:
         if word in message_content.lower():
+            
             return True
     return False
 
@@ -67,6 +71,7 @@ async def on_ready():
 async def on_message(message):
     if not message.author.bot:
         if contains_prohibited_word(message.content):
+            await message.delete()
             await muteUser(message, message.author, True, "swearing", False)
         else:
             await client.process_commands(message)
